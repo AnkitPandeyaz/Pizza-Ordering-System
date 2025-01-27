@@ -1,20 +1,41 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import Helmet from "../components/Helmet/Helmet";
 import CommonSection from "../components/UI/common-section/CommonSection";
 
 import { Container, Row, Col } from "reactstrap";
+import { useNavigate } from "react-router-dom"; // Use useNavigate instead of useHistory
 
 import products from "../assets/fake-data/products";
 import ProductCard from "../components/UI/product-card/ProductCard";
 import ReactPaginate from "react-paginate";
+
+import { auth } from "../firebase/firebase"; // Assuming you are using Firebase authentication
 
 import "../styles/all-foods.css";
 import "../styles/pagination.css";
 
 const AllFoods = () => {
   const [searchTerm, setSearchTerm] = useState("");
-
   const [pageNumber, setPageNumber] = useState(0);
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // Track if the user is authenticated
+  const navigate = useNavigate(); // Use useNavigate for navigation
+
+  useEffect(() => {
+    // Check if the user is logged in or not
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setIsAuthenticated(true); // User is authenticated
+      } else {
+        setIsAuthenticated(false); // User is not authenticated
+      }
+    });
+
+    // Cleanup the subscription when the component is unmounted
+    return () => unsubscribe();
+  }, []);
+
+
 
   const searchedProduct = products.filter((item) => {
     if (searchTerm.value === "") {
@@ -39,6 +60,21 @@ const AllFoods = () => {
   const changePage = ({ selected }) => {
     setPageNumber(selected);
   };
+
+  const handleLoginRedirect = () => {
+    // Redirect to login page if not authenticated
+    navigate("/login");
+  };
+
+  if (!isAuthenticated) {
+    // If the user is not authenticated, show login button or redirect to login
+    return (
+      <div className="login-required">
+        <h2>You need to log in to view this page.</h2>
+        <button class="login" onClick={handleLoginRedirect}>Login</button>
+      </div>
+    );
+  }
 
   return (
     <Helmet title="All-Foods">

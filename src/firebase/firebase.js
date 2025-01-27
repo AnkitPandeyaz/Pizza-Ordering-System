@@ -4,12 +4,12 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAOQ0D6kuk6OanryvzODhIiA3VLkIX78ms",
-  authDomain: "fit-it-782e9.firebaseapp.com",
-  projectId: "fit-it-782e9",
-  storageBucket: "fit-it-782e9.appspot.com",
-  messagingSenderId: "846087500602",
-  appId: "1:846087500602:web:af177cb0995ba9d4031603"
+  apiKey: "AIzaSyDBis3Soy_Srz9saiEa408R6ncOewJjTxY",
+  authDomain: "online-pizza-system.firebaseapp.com",
+  projectId: "online-pizza-system",
+  storageBucket: "online-pizza-system.firebasestorage.app",
+  messagingSenderId: "386507580479",
+  appId: "1:386507580479:web:ce03ea9e3f9ca61d64c48a"
 };
 
 const app = initializeApp(firebaseConfig);

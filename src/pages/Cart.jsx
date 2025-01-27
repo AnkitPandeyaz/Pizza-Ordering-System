@@ -1,16 +1,49 @@
-import React from "react";
 
+import React, { useState, useEffect } from "react";
 import CommonSection from "../components/UI/common-section/CommonSection";
 import Helmet from "../components/Helmet/Helmet";
 import "../styles/cart-page.css";
 import { useSelector, useDispatch } from "react-redux";
 import { Container, Row, Col } from "reactstrap";
 import { cartActions } from "../store/shopping-cart/cartSlice";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { auth } from "../firebase/firebase"; // Assuming you're using Firebase authentication
 
 const Cart = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // Track if user is authenticated
   const cartItems = useSelector((state) => state.cart.cartItems);
   const totalAmount = useSelector((state) => state.cart.totalAmount);
+  const navigate = useNavigate(); // For navigation
+
+  useEffect(() => {
+    // Check if the user is logged in or not
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setIsAuthenticated(true); // User is authenticated
+      } else {
+        setIsAuthenticated(false); // User is not authenticated
+      }
+    });
+
+    // Cleanup the subscription when the component is unmounted
+    return () => unsubscribe();
+  }, []);
+
+  const handleLoginRedirect = () => {
+    // Redirect to login page if not authenticated
+    navigate("/login");
+  };
+
+  if (!isAuthenticated) {
+    // If the user is not authenticated, show login button or redirect to login
+    return (
+      <div className="login-required">
+        <h2>You need to log in to view your cart.</h2>
+        <button onClick={handleLoginRedirect}>Login</button>
+      </div>
+    );
+  }
+
   return (
     <Helmet title="Cart">
       <CommonSection title="Your Cart" />
@@ -69,6 +102,7 @@ const Tr = (props) => {
   const deleteItem = () => {
     dispatch(cartActions.deleteItem(id));
   };
+
   return (
     <tr>
       <td className="text-center cart__img-box">
@@ -78,10 +112,11 @@ const Tr = (props) => {
       <td className="text-center">₹{price}</td>
       <td className="text-center">{quantity}px</td>
       <td className="text-center cart__item-del">
-        <i class="ri-delete-bin-line" onClick={deleteItem}></i>
+        <i className="ri-delete-bin-line" onClick={deleteItem}></i>
       </td>
     </tr>
   );
 };
 
 export default Cart;
+

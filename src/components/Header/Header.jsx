@@ -26,6 +26,10 @@ const nav__links = [
     display: "Contact",
     path: "/contact",
   },
+  {
+    display: "Dashboard",
+    path: "/dashboard",
+  }
 ];
 
 const Header = () => {

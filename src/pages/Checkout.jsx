@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Container, Row, Col } from "reactstrap";
 import CommonSection from "../components/UI/common-section/CommonSection";
 import Helmet from "../components/Helmet/Helmet";
-
 import "../styles/checkout.css";
 
 const Checkout = () => {
+  // Define state for form inputs
   const [enterName, setEnterName] = useState("");
   const [enterEmail, setEnterEmail] = useState("");
   const [enterNumber, setEnterNumber] = useState("");
@@ -14,25 +14,60 @@ const Checkout = () => {
   const [enterCity, setEnterCity] = useState("");
   const [postalCode, setPostalCode] = useState("");
 
-  const shippingInfo = [];
-  const cartTotalAmount = useSelector((state) => state.cart.totalAmount);
-  const shippingCost = 30;
+  // Placeholder for cart total, shipping, and total amount
+  const cartTotalAmount = 500; // Replace with actual value from your cart
+  const shippingCost = 50; // Replace with actual value
+  const totalAmount = cartTotalAmount + shippingCost; // Sum of cart total and shipping
 
-  const totalAmount = cartTotalAmount + Number(shippingCost);
+  const loadRazorpayScript = () => {
+    if (!window.Razorpay) {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => {
+        console.log("Razorpay script loaded successfully!");
+      };
+      script.onerror = (err) => {
+        console.error("Failed to load Razorpay script", err);
+      };
+      document.body.appendChild(script);
+    }
+  };
+
+  useEffect(() => {
+    loadRazorpayScript(); // Load the Razorpay script when the component is mounted
+  }, []);
+
+  const handlePayment = () => {
+    const options = {
+      key: "YOUR_RAZORPAY_KEY", // Replace with your Razorpay Key
+      amount: totalAmount * 100, // Amount in paise
+      currency: "INR",
+      name: "Tasty Treat",
+      description: "Payment for order",
+      // image: "https://your-logo-url.com/logo.png", // Your logo
+      handler: function (response) {
+        alert("Payment successful! Razorpay payment ID: " + response.razorpay_payment_id);
+      },
+      prefill: {
+        name: enterName,
+        email: enterEmail,
+        contact: enterNumber,
+      },
+      notes: {
+        address: "Razorpay Payment Notes",
+      },
+      theme: {
+        color: "#F37254",
+      },
+    };
+
+    const rzp1 = new window.Razorpay(options); // Ensure Razorpay is available here
+    rzp1.open();
+  };
 
   const submitHandler = (e) => {
     e.preventDefault();
-    const userShippingAddress = {
-      name: enterName,
-      email: enterEmail,
-      phone: enterNumber,
-      country: enterCountry,
-      city: enterCity,
-      postalCode: postalCode,
-    };
-
-    shippingInfo.push(userShippingAddress);
-    console.log(shippingInfo);
+    // Handle form submission if necessary
   };
 
   return (
@@ -52,7 +87,6 @@ const Checkout = () => {
                     onChange={(e) => setEnterName(e.target.value)}
                   />
                 </div>
-
                 <div className="form__group">
                   <input
                     type="email"
@@ -93,8 +127,8 @@ const Checkout = () => {
                     onChange={(e) => setPostalCode(e.target.value)}
                   />
                 </div>
-                <button type="submit" className="addTOCart__btn">
-                  Payment
+                <button type="button" class="close-btn" onClick={handlePayment}>
+                  Proceed to Payment
                 </button>
               </form>
             </Col>
